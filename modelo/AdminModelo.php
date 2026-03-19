@@ -72,7 +72,25 @@ class AdminModelo {
     public function getProductos() { return $this->pdo->query("SELECT * FROM productos")->fetchAll(); }
     public function getUsuarios() { return $this->pdo->query("SELECT * FROM usuarios")->fetchAll(); }
     public function getPedidos() { return $this->pdo->query("SELECT v.id, v.fecha, v.canal, v.total, u.username FROM ventas v LEFT JOIN usuarios u ON v.usuario_id = u.id ORDER BY v.fecha DESC")->fetchAll(); }
-    public function getRecetas() { return $this->pdo->query("SELECT r.id as receta_id, p.nombre as producto, i.nombre as ingrediente, r.cantidad_requerida, i.unidad_medida FROM recetas r JOIN productos p ON r.producto_id = p.id JOIN ingredientes i ON r.ingrediente_id = i.id ORDER BY p.nombre")->fetchAll(); }
+    
+    // MAGIA DE AGRUPACIÓN DE RECETAS
+    public function getRecetasAgrupadas() { 
+        $stmt = $this->pdo->query("SELECT r.id as receta_id, p.id as producto_id, p.nombre as producto, i.nombre as ingrediente, r.cantidad_requerida, i.unidad_medida FROM recetas r JOIN productos p ON r.producto_id = p.id JOIN ingredientes i ON r.ingrediente_id = i.id ORDER BY p.nombre, i.nombre");
+        $recetas_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $agrupadas = [];
+        foreach ($recetas_raw as $r) {
+            $prod_id = $r['producto_id'];
+            if (!isset($agrupadas[$prod_id])) {
+                $agrupadas[$prod_id] = [
+                    'producto' => $r['producto'],
+                    'ingredientes' => []
+                ];
+            }
+            $agrupadas[$prod_id]['ingredientes'][] = $r;
+        }
+        return $agrupadas;
+    }
     
     public function getStats() {
         return [

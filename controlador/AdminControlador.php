@@ -69,12 +69,12 @@ if (isset($_GET['eliminar_producto'])) {
 
 if (isset($_POST['agregar_receta'])) {
     $modelo->agregarReceta($_POST['producto_id'], $_POST['ingrediente_id'], $_POST['cantidad']);
-    $mensaje = "<div class='alert alert-success'>Receta actualizada.</div>";
+    $mensaje = "<div class='alert alert-success'>Ingrediente añadido a la receta del producto.</div>";
 }
 
 if (isset($_GET['eliminar_receta'])) {
     $modelo->eliminarReceta($_GET['eliminar_receta']);
-    $mensaje = "<div class='alert alert-success'>Ingrediente quitado.</div>";
+    $mensaje = "<div class='alert alert-success'>Ingrediente quitado de la receta.</div>";
 }
 
 if (isset($_POST['editar_usuario'])) {
@@ -95,7 +95,7 @@ $ingredientes = $modelo->getIngredientes();
 $productos = $modelo->getProductos();
 $lista_usuarios = $modelo->getUsuarios();
 $pedidos = $modelo->getPedidos();
-$lista_recetas = $modelo->getRecetas();
+$recetas_agrupadas = $modelo->getRecetasAgrupadas(); // <-- CAMBIO AQUÍ
 $historial_compras = $modelo->getHistorialCompras();
 $stats = $modelo->getStats();
 

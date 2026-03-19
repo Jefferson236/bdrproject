@@ -171,12 +171,67 @@
         <?php if($activeTab == 'recetas'): ?>
         <div class="row">
             <div class="col-md-4">
-                <div class="card shadow border-info"><div class="card-body"><h5>Armar Receta</h5><form method="POST" action="?tab=recetas"><select name="producto_id" class="form-select mb-2" required><option value="">1. Selecciona Producto...</option><?php foreach($productos as $p) echo "<option value='{$p['id']}'>{$p['nombre']}</option>"; ?></select><select name="ingrediente_id" class="form-select mb-2" required><option value="">2. Selecciona Ingrediente...</option><?php foreach($ingredientes as $i) echo "<option value='{$i['id']}'>{$i['nombre']} ({$i['unidad_medida']})</option>"; ?></select><input type="number" step="0.01" name="cantidad" class="form-control mb-2" placeholder="3. Cantidad a usar (ej: 0.15)" required><button type="submit" name="agregar_receta" class="btn btn-info w-100 text-white fw-bold">Guardar en Receta</button></form></div></div>
+                <div class="card shadow border-info">
+                    <div class="card-body">
+                        <h5>Añadir Ingrediente a Receta</h5>
+                        <form method="POST" action="?tab=recetas">
+                            <select name="producto_id" class="form-select mb-2" required>
+                                <option value="">1. Selecciona Producto (Receta)...</option>
+                                <?php foreach($productos as $p) echo "<option value='{$p['id']}'>{$p['nombre']}</option>"; ?>
+                            </select>
+                            <select name="ingrediente_id" class="form-select mb-2" required>
+                                <option value="">2. Selecciona Ingrediente...</option>
+                                <?php foreach($ingredientes as $i) echo "<option value='{$i['id']}'>{$i['nombre']} ({$i['unidad_medida']})</option>"; ?>
+                            </select>
+                            <input type="number" step="0.01" name="cantidad" class="form-control mb-2" placeholder="3. Cantidad a descontar (ej: 0.15)" required>
+                            <button type="submit" name="agregar_receta" class="btn btn-info w-100 text-white fw-bold">Guardar en Receta</button>
+                        </form>
+                    </div>
+                </div>
             </div>
+            
             <div class="col-md-8">
-                <div class="card shadow"><div class="card-body"><h5>Recetas Configuradas</h5><table class="table table-sm align-middle"><thead class="table-light"><tr><th>Producto</th><th>Ingrediente</th><th>Cantidad a descontar</th><th>Acción</th></tr></thead><tbody>
-                    <?php foreach($lista_recetas as $r): ?><tr><td><strong><?= htmlspecialchars($r['producto']) ?></strong></td><td><?= htmlspecialchars($r['ingrediente']) ?></td><td><?= htmlspecialchars($r['cantidad_requerida']) ?> <?= htmlspecialchars($r['unidad_medida']) ?></td><td><a href="?tab=recetas&eliminar_receta=<?= $r['receta_id'] ?>" class="btn btn-sm btn-outline-danger">Quitar</a></td></tr><?php endforeach; ?>
-                </tbody></table></div></div>
+                <h5 class="mb-3">Recetas Configuradas</h5>
+                
+                <?php if(empty($recetas_agrupadas)): ?>
+                    <div class="alert alert-warning">Aún no hay recetas configuradas. ¡Agrega una!</div>
+                <?php else: ?>
+                    <div class="accordion shadow-sm" id="accordionRecetas">
+                        <?php foreach($recetas_agrupadas as $prod_id => $grupo): ?>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading<?= $prod_id ?>">
+                                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $prod_id ?>">
+                                        🍔 Receta de: <?= htmlspecialchars($grupo['producto']) ?>
+                                    </button>
+                                </h2>
+                                <div id="collapse<?= $prod_id ?>" class="accordion-collapse collapse" data-bs-parent="#accordionRecetas">
+                                    <div class="accordion-body p-0">
+                                        <table class="table table-sm table-hover align-middle m-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="ps-3">Ingrediente</th>
+                                                    <th>Cantidad a descontar por unidad</th>
+                                                    <th class="text-end pe-3">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach($grupo['ingredientes'] as $ing): ?>
+                                                    <tr>
+                                                        <td class="ps-3"><?= htmlspecialchars($ing['ingrediente']) ?></td>
+                                                        <td><span class="badge bg-primary fs-6"><?= htmlspecialchars($ing['cantidad_requerida']) ?> <?= htmlspecialchars($ing['unidad_medida']) ?></span></td>
+                                                        <td class="text-end pe-3">
+                                                            <a href="?tab=recetas&eliminar_receta=<?= $ing['receta_id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Quitar este ingrediente de la receta?');">Quitar</a>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>
